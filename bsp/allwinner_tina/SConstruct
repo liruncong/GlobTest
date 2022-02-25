@@ -9,6 +9,7 @@ from building import *
 
 TARGET = 'rtthread.' + rtconfig.TARGET_EXT
 
+SetOption('experimental','ninja')
 DefaultEnvironment(tools=[])
 env = Environment(tools = ['mingw'],
     AS = rtconfig.AS, ASFLAGS = rtconfig.AFLAGS,
@@ -17,6 +18,7 @@ env = Environment(tools = ['mingw'],
     AR = rtconfig.AR, ARFLAGS = '-rc',
     LINK = rtconfig.LINK, LINKFLAGS = rtconfig.LFLAGS)
 env.PrependENVPath('PATH', rtconfig.EXEC_PATH)
+env.Tool('ninja')
 
 Export('RTT_ROOT')
 Export('rtconfig')

@@ -965,7 +965,7 @@ def EndBuilding(target, program = None):
     if hasattr(rtconfig, 'dist_handle'):
         Env['dist_handle'] = rtconfig.dist_handle
 
-    Env.AddPostAction(target, rtconfig.POST_ACTION)
+    Env.Command("rtthread.bin", target, rtconfig.POST_ACTION)
     # Add addition clean files
     Clean(target, 'cconfig.h')
     Clean(target, 'rtua.py')

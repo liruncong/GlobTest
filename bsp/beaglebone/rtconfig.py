@@ -1,4 +1,5 @@
-import os
+﻿import os
+import SCons
 
 # toolchains options
 ARCH='arm'
@@ -46,5 +47,4 @@ if PLATFORM == 'gcc':
     else:
         CFLAGS += ' -O2 -Wall'
 
-    POST_ACTION = OBJCPY + ' -O binary $TARGET rtthread.bin\n' +\
-                  SIZE + ' $TARGET \n'
+    POST_ACTION = [SCons.Action.Action(OBJCPY + ' -O binary $SOURCE $TARGET'), SCons.Action.Action(SIZE + ' $SOURCE')]

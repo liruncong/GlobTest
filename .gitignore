@@ -42,3 +42,6 @@ tags
 .history
 CMakeLists.txt
 cmake-build-debug
+*.ninja
+compile_commands.json
+run_ninja_env.bat
