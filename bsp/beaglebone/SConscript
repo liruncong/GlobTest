@@ -1,14 +1,35 @@
 # for module compiling
 import os
+import SCons
+from building import *
+
 Import('RTT_ROOT')
 
 cwd = str(Dir('#'))
 objs = []
-list = os.listdir(cwd)
 
-for d in list:
-    path = os.path.join(cwd, d)
+for item in os.listdir(cwd):
+    path = os.path.join(cwd, item)
     if os.path.isfile(os.path.join(path, 'SConscript')):
-        objs = objs + SConscript(os.path.join(d, 'SConscript'))
+        objs = objs + SConscript(os.path.join(item, 'SConscript'))
+    #elif item.endswith("_Ts.py"):
+    #    target = File("%s.autogen.cpp" % item[:-6]).srcnode()
+    #    source = File(item).srcnode()
+    #    Env.Command(
+    #        target,
+    #        source,
+    #        "cd ${SOURCE.abspath} && python $SOURCE --output=${TARGET.abspath}",
+    #        Env = {"PATH": os.environ['PATH']}
+    #    )
+    #    objs += [target]
+    elif item.endswith("_Ts.py"):
+        target = "%s.autogen.cpp" % item[:-6]
+        print("target=", target)
+        Env.Command(
+            os.path.join(cwd, target),
+            os.path.join(cwd, item),
+            "cd ${SOURCE.srcpath.dir.abspath} && python $SOURCE --output=$TARGET"
+        )
+        objs += [target]
 
 Return('objs')
