@@ -2,8 +2,21 @@
 import os
 import SCons
 from building import *
+import glob
 
 Import('RTT_ROOT')
+
+m = str(Dir('#')) + r"\*\SConscript"
+print("m:", m)
+print("<<<")
+for s in Glob(m):
+    print(str(s))
+print(">>>")
+
+print("<<<")
+for s in glob.glob(m, recursive=True):
+    print(str(s))
+print(">>>")
 
 cwd = str(Dir('#'))
 objs = []
