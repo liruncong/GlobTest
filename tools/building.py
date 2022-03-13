@@ -76,47 +76,6 @@ PatchedPreProcessor = SCons.cpp.PreProcessor
 PatchedPreProcessor.start_handling_includes = start_handling_includes
 PatchedPreProcessor.stop_handling_includes = stop_handling_includes
 
-class Win32Spawn:
-    def spawn(self, sh, escape, cmd, args, env):
-        # deal with the cmd build-in commands which cannot be used in
-        # subprocess.Popen
-        if cmd == 'del':
-            for f in args[1:]:
-                try:
-                    os.remove(f)
-                except Exception as e:
-                    print('Error removing file: ' + e)
-                    return -1
-            return 0
-
-        import subprocess
-
-        newargs = ' '.join(args[1:])
-        cmdline = cmd + " " + newargs
-
-        # Make sure the env is constructed by strings
-        _e = dict([(k, str(v)) for k, v in env.items()])
-
-        # Windows(tm) CreateProcess does not use the env passed to it to find
-        # the executables. So we have to modify our own PATH to make Popen
-        # work.
-        old_path = os.environ['PATH']
-        os.environ['PATH'] = _e['PATH']
-
-        try:
-            proc = subprocess.Popen(cmdline, env=_e, shell=False)
-        except Exception as e:
-            print('Error in calling command:' + cmdline.split(' ')[0])
-            print('Exception: ' + os.strerror(e.errno))
-            if (os.strerror(e.errno) == "No such file or directory"):
-                print ("\nPlease check Toolchains PATH setting.\n")
-
-            return e.errno
-        finally:
-            os.environ['PATH'] = old_path
-
-        return proc.wait()
-
 # generate cconfig.h file
 def GenCconfigFile(env, BuildOptions):
     import rtconfig
@@ -308,12 +267,6 @@ def PrepareBuilding(env, root_directory, has_libcpu=False, remove_components = [
         env['LIBLINKSUFFIX'] = '.a'
         env['LIBDIRPREFIX'] = '--search '
 
-    # patch for win32 spawn
-    if env['PLATFORM'] == 'win32':
-        win32_spawn = Win32Spawn()
-        win32_spawn.env = env
-        env['SPAWN'] = win32_spawn.spawn
-
     if env['PLATFORM'] == 'win32':
         os.environ['PATH'] = rtconfig.EXEC_PATH + ";" + os.environ['PATH']
     else:
@@ -462,12 +415,6 @@ def PrepareModuleBuilding(env, root_directory, bsp_directory):
     global BuildOptions
     global Env
     global Rtt_Root
-
-    # patch for win32 spawn
-    if env['PLATFORM'] == 'win32':
-        win32_spawn = Win32Spawn()
-        win32_spawn.env = env
-        env['SPAWN'] = win32_spawn.spawn
 
     Env = env
     Rtt_Root = root_directory
